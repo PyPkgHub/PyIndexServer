@@ -30,28 +30,175 @@
     body {
       margin: 0;
       padding: 0;
-      background: none;
+      background: linear-gradient(to bottom right, #f8f9fa, #ffffff);
       font-family: 'Montserrat', sans-serif;
+      color: #2c3e50;
+      line-height: 1.6;
     }
 
     .container {
-      margin: 20px;
+      margin: 40px auto;
+      padding: 0 20px;
+      max-width: 1200px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      background: white;
+      border-radius: 12px;
+    }
+
+    .header {
+      padding: 30px 0;
+      text-align: center;
+      position: relative;
     }
 
     .goback-button {
+      position: absolute;
+      left: 20px;
+      top: 20px;
       background: none;
       border: none;
       cursor: pointer;
+      transition: transform 0.2s ease;
     }
 
     .goback-button:hover {
       transform: scale(1.1);
     }
 
+    .goback-button svg {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    h1 {
+      font-weight: 600;
+      color: #1a365d;
+      margin: 20px 0 10px;
+    }
+
     pre {
-      background: #f4f4f4;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      overflow-x: auto;
+    }
+
+    .version {
+      display: inline-block;
+      background: #e9ecef;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      color: #495057;
+      font-weight: 500;
+      margin: 10px 0;
+    }
+
+    .danger-button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      width: 100%;
+      transition: background-color 0.2s ease;
+    }
+
+    .row {
+      margin-top: 40px;
+    }
+
+    #repoHomepage {
+      width: 100%;
+      margin: 10px 0;
       padding: 10px;
-      border-radius: 4px;
+      background: #1EAEDB;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+
+    #repoHomepage:hover {
+      background: #1a95bd;
+    }
+
+    .versions {
+      margin-top: 20px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .versions div {
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .versions div:last-child {
+      border-bottom: none;
+    }
+
+    .versions a {
+      display: block;
+      padding: 12px 16px;
+      color: #1EAEDB;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .versions a:hover {
+      background: #f8f9fa;
+    }
+
+    .versions .main a {
+      font-weight: 600;
+      color: #1a95bd;
+    }
+
+    .text-header {
+      color: #1a365d;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .readme-block {
+      font-size: 1.1em;
+      color: #2d3748;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid #e9ecef;
+      margin: 30px 0;
+    }
+
+    .elem {
+      margin: 15px 0;
+      line-height: 1.6;
+    }
+
+    .elem b {
+      color: #1a365d;
+    }
+
+    @media (max-width: 750px) {
+      .container {
+        margin: 20px;
+        padding: 15px;
+      }
+      
+      .header {
+        padding: 20px 0;
+      }
+      
+      .goback-button {
+        top: 10px;
+        left: 10px;
+      }
     }
   </style>
 </head>
@@ -68,8 +215,6 @@
         </svg>
       </button>
       <h1>_package_name</h1>
-      <span id="latest-version" class="version">_version</span>
-      <span id="latest-main-version" hidden>_latest_main</span>
     </section>
     
     <pre id="installdanger" hidden>
@@ -77,6 +222,10 @@
         DANGER! A higher version of <i>_package_name</i> already exists on PyPI
       </button>
     </pre>
+
+    <span id="latest-version" class="version">_version</span>
+    <span id="latest-main-version" hidden>_latest_main</span>
+    
     <p>
       <span style="color:gray;">
         alias python=python3 # on macOS/Linux
