@@ -1,5 +1,5 @@
 <div align="center">
-      <img src="./logo.png" width="40%">
+      <img src="./logo.webp" width="40%">
 </div>
 
 <h1 align="center">PyPi server</h1>
