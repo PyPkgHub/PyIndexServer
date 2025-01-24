@@ -153,7 +153,7 @@ def register(pkg_name, version, author, short_desc, homepage):
     template = template.replace('_long_description', long_desc)
     template = template.replace('_latest_main', version)
 
-    #os.mkdir(norm_pkg_name)
+    os.mkdir(f'packages/{norm_pkg_name}', exist_ok=True)
     package_index = f'packages/{norm_pkg_name}/index.html'
     with open(package_index, 'w') as f:
         f.write(template)
