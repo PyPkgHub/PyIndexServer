@@ -3,13 +3,13 @@
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   
   <!-- Skeleton CSS -->
   <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" rel="stylesheet" />
   
   <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&amp;display=swap" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet" type="text/css" />
   
   <!-- JQuery -->
   <script src="https://code.jquery.com/jquery-latest.min.js"></script>
@@ -20,101 +20,113 @@
   <!-- Custom Styles -->
   <link href="../static/package_styles.css" rel="stylesheet" />
   
-  <!-- Our JS -->
+  <!-- Custom JS -->
   <script type="text/javascript" src="../static/pypi_checker.js"></script>
   <script src="../static/package_page.js" defer></script>
   
-  <title>
-    Private Pypi - Python Package Index
-  </title>
+  <title>Private PyPI - Python Package Index</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: none;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .container {
+      margin: 20px;
+    }
+
+    .goback-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .goback-button:hover {
+      transform: scale(1.1);
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+    }
+  </style>
 </head>
-  
 <body>
   <div class="container">
     <section class="header">
       <div align="center">
-        <img src="./../../logo.webp" width="40%"/>
-       </div>
-      <button onclick="redirectToIndex()" class="goback-button">
+        <img src="./../../logo.webp" width="40%" />
+      </div>
+      <button onclick="goBack()" class="goback-button">
         <svg width="50" height="50">
           <circle cx="25" cy="25" r="20" fill="#1EAEDB" />
           <path d="M15 25l10-10v5h10v10h-10v5z" fill="white" />
         </svg>
       </button>
-      _package_name
-      <span>
-      </span>
-      <span id='latest-version' class="version">
-        _version
-      </span>
-      <span id='latest-main-version' hidden>
-        _latest_main
-      </span>
+      <h1>_package_name</h1>
+      <span id="latest-version" class="version">_version</span>
+      <span id="latest-main-version" hidden>_latest_main</span>
     </section>
     
-    <pre id='installdanger' hidden>
+    <pre id="installdanger" hidden>
       <button class="danger-button" disabled>
-        DANGER ! A higher version of <i>_package_name</i> already exists on PyPi
+        DANGER! A higher version of <i>_package_name</i> already exists on PyPI
       </button>
     </pre>
     
-    <pre id='installcmd'>
-      <code>
-        <span style="color:gray;">alias python=python3 # on macOS/Linux</span>
-        <span style="color:black;">python -m pip install _package_name --extra-index-url https://pypkghub.github.io/PyIndexServer/packages/</span>
-      </code>
-    </pre>
-    
+    <pre id="installcmd" style="margin: 0; padding: 0; white-space: pre-wrap; word-wrap: break-word;">
+    <code style="margin: 0; padding: 0;">
+  alias python=python3 # on macOS/Linux</span>
+  <span style="color: black;">python -m pip install _package_name --extra-index-url https://pypkghub.github.io/PyIndexServer/packages/</span>
+    </code>
+    </pre>    
     <hr />
     
     <div class="row">
       <div class="three columns">
-        <b>
-          Project links
-        </b>
-        <button id="repoHomepage" onclick="openLinkInNewTab('_homepage')">
-          Homepage
-        </button>
-        <p class="elem">
-          <b>
-            Author :
-          </b>
-          _author
-        </p>
+        <b>Project Links</b>
+        <button id="repoHomepage" onclick="openLinkInNewTab('_homepage')">Homepage</button>
+        <p class="elem"><b>Author:</b> _author</p>
         <section class="versions" id="versions">
-          <div id="_version" onclick="load_readme('_version', scroll_to_div=true)">
-            <a href="_link">
-              _norm_version
-            </a>
+          <div id="_version" onclick="load_readme('_version', true)">
+            <a href="_link">_norm_version</a>
           </div>
         </section>
       </div>
       
       <div class="nine columns" id="description_pkg">
-        <h6 class="text-header">
-          Description
-        </h6>
-        <p id="markdown-container" class="readme-block">
-        </p>
+        <h6 class="text-header">Description</h6>
+        <p id="markdown-container" class="readme-block"></p>
       </div>
     </div>
   </div>
   
   <script>
-    var url_readme_main = '_long_description';
-    
+    // Navigate back in history
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = "/"; // Fallback to homepage
+      }
+    }
+
+    // Load README or handle default version logic
     $(document).ready(function () {
-      var this_vers = document.getElementById('latest-main-version').textContent.trim();
-      document.getElementById(this_vers).classList.add('main');
-      check_supply_chain_attack("_package_name", this_vers, warn_unsafe);
+      var thisVers = document.getElementById('latest-main-version').textContent.trim();
+      document.getElementById(thisVers).classList.add('main');
+      check_supply_chain_attack("_package_name", thisVers, warn_unsafe);
     
-      if (window.location.hash != "") {
-        let version_hash = window.location.hash;
-        version = version_hash.replace('#', '');
-        load_readme(version, scroll_to_div=true);
+      if (window.location.hash !== "") {
+        let versionHash = window.location.hash.replace('#', '');
+        load_readme(versionHash, true);
         return;
       }
-      load_readme(this_vers);
+      load_readme(thisVers);
     });
   </script>
 </body>
