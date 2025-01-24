@@ -1,0 +1,44 @@
+name: delete
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_name:
+        description: Package name
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+      
+    - name: Checkout pypi-server repository
+      uses: actions/checkout@v4
+    
+    - name: Delete
+      env:
+        PKG_ACTION: DELETE
+        PKG_NAME: ${{ inputs.package_name }}
+      run: |
+        pip install beautifulsoup4
+        python .github/actions.py 
+    
+    - name: Commit and push pypi-server repository
+      env:
+        PKG_NAME: ${{ inputs.package_name }}
+      run: |
+        export COMMIT_MESSAGE=":package: [:robot:] Delete package ${{ env.PKG_NAME }} in PyPi index"
+        git config user.name "GitHub Actions Bot"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "$COMMIT_MESSAGE"
+        git push

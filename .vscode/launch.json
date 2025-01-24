@@ -1,0 +1,45 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "env": {
+                "AWS_LAMBDA_FUNCTION_NAME": "test-lambda"
+            },
+            "args": [
+                "app:app",
+                "--reload",
+                "--port",
+                "5005",
+                "--workers",
+                "4",
+                "--log-level",
+                "debug"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "Unit Test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "env": {},
+            "args": [
+                "-s",
+                "-x",
+                "-ra",
+                "--durations=10",
+                "-vv",
+                "${workspaceFolder}/tests/unit"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        }
+    ]
+}
