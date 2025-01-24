@@ -21,7 +21,7 @@ jobs:
       with:
         python-version: "3.11"
       
-    - name: Checkout pypi-server repository
+    - name: Checkout PyIndexServer repository
       uses: actions/checkout@v4
     
     - name: Delete
@@ -32,7 +32,7 @@ jobs:
         pip install beautifulsoup4
         python .github/actions.py 
     
-    - name: Commit and push pypi-server repository
+    - name: Commit and push PyIndexServer repository
       env:
         PKG_NAME: ${{ inputs.package_name }}
       run: |
