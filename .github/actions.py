@@ -1,187 +1,194 @@
 import os
 import copy
 import re
-import shutil
-
 from bs4 import BeautifulSoup
-
 
 INDEX_FILE = 'index.html'
 TEMPLATE_FILE = 'pkg_template.html'
-YAML_ACTION_FILES = ['.github/workflows/delete.yml', '.github/workflows/update.yml']
 
 INDEX_CARD_HTML = '''
-<a class='card' href=''>
-    placeholder_name
-    <span>
-    </span>
-    <span class='version'>
-        placehholder_version
-    </span>
+<a class="card" href="">
+    <span class="package-name">placeholder_name</span>
+    <span class="version">placeholder_version</span>
     <br/>
-    <span class='description'>
-        placeholder_description
-    </span>
+    <span class="description">placeholder_description</span>
 </a>'''
 
-
 def normalize(name):
-    ''' From PEP503 : https://www.python.org/dev/peps/pep-0503/ '''
+    """From PEP503: https://www.python.org/dev/peps/pep-0503/"""
     return re.sub(r'[-_.]+', '-', name).lower()
-
 
 def normalize_version(version):
     version = version.lower()
     return version[1:] if version.startswith('v') else version
 
-
 def is_stable(version):
     return not ('dev' in version or 'a' in version or 'b' in version or 'rc' in version)
 
-
 def package_exists(soup, package_name):
     package_ref = f'packages/{package_name}/index.html'
-    for anchor in soup.find_all('a'):
-        if anchor['href'] == package_ref:
+    for anchor in soup.find_all('a', class_='card'):
+        if anchor.get('href') == package_ref:
             return True
     return False
-
 
 def transform_github_url(input_url):
     # Split the input URL to extract relevant information
     parts = input_url.rstrip('/').split('/')
     username, repo = parts[-2], parts[-1]
-
+    
     # Create the raw GitHub content URL
     raw_url = f'https://github.com/{username}/{repo}/blob/main/README.md'
     return raw_url
 
-
 def update(pkg_name, version, homepage):
     # Read our index first
-    with open(INDEX_FILE) as html_file:
+    with open(INDEX_FILE, encoding='utf-8') as html_file:
         soup = BeautifulSoup(html_file, 'html.parser')
+    
     norm_pkg_name = normalize(pkg_name)
     norm_version = normalize_version(version)
 
     if not package_exists(soup, norm_pkg_name):
-        raise ValueError(f'Package {norm_pkg_name} seems to not exists')
+        raise ValueError(f'Package {norm_pkg_name} does not exist')
 
     # Change the version in the main page (only if stable)
     if is_stable(version):
         anchor = soup.find('a', attrs={'href': f'packages/{norm_pkg_name}/index.html'})
-        spans = anchor.find_all('span')
-        spans[1].string = norm_version
-        with open(INDEX_FILE, 'wb') as index:
-            index.write(soup.prettify('utf-8'))
-
-    # Change the package page
-    index_file = f'packages/{norm_pkg_name}/index.html' 
-    with open(index_file) as html_file:
-        soup = BeautifulSoup(html_file, 'html.parser')
+        version_span = anchor.find('span', class_='version')
+        version_span.string = norm_version
         
+        with open(INDEX_FILE, 'w', encoding='utf-8') as index:
+            index.write(soup.prettify())
+
+    # Update the package page
+    index_file = f'packages/{norm_pkg_name}/index.html'
+    with open(index_file, encoding='utf-8') as html_file:
+        soup = BeautifulSoup(html_file, 'html.parser')
+
     # Extract the URL from the onclick attribute
     button = soup.find('button', id='repoHomepage')
     if not button:
         raise Exception('Homepage URL not found')
 
-    # Create a new anchor element for our new version
-    original_div = soup.find('section', class_='versions').findAll('div')[-1]
+    # Create a new version entry
+    versions_section = soup.find('section', class_='versions')
+    original_div = versions_section.find_all('div')[-1]
     new_div = copy.copy(original_div)
+    
     anchor = new_div.find('a')
     new_div['onclick'] = f'load_readme(\'{version}\', scroll_to_div=true);'
     new_div['id'] = version
-    new_div['class'] = ''
+    new_div['class'] = 'version-entry'
+    
     if not is_stable(version):
-        new_div['class'] += 'prerelease'
+        new_div['class'] += ' prerelease'
     else:
-        # replace the latest main version
+        # Update the latest main version
         main_version_span = soup.find('span', id='latest-main-version')
         main_version_span.string = version
+        
     anchor.string = norm_version
     anchor['href'] = f'git+{homepage}@{version}#egg={norm_pkg_name}-{norm_version}'
+    anchor['class'] = 'version-link'
 
-    # Add it to our index
+    # Add the new version entry
     original_div.insert_after(new_div)
 
-    # Change the latest version (if stable)
-    if is_stable(version):
-        soup.html.body.div.section.find_all('span')[1].contents[0].replace_with(version)
-
-    # Save it
-    with open(index_file, 'wb') as index:
-        index.write(soup.prettify('utf-8'))
+    # Save changes
+    with open(index_file, 'w', encoding='utf-8') as index:
+        index.write(soup.prettify())
 
 def register(pkg_name, version, author, short_desc, homepage):
     link = f'git+{homepage}@{version}'
     long_desc = transform_github_url(homepage)
-    # Read our index first
-    with open(INDEX_FILE) as html_file:
+    
+    # Read the index file
+    with open(INDEX_FILE, encoding='utf-8') as html_file:
         soup = BeautifulSoup(html_file, 'html.parser')
+    
     norm_pkg_name = normalize(pkg_name)
     norm_version = normalize_version(version)
 
     if package_exists(soup, norm_pkg_name):
         return update(pkg_name, version, homepage)
-        #raise ValueError(f'Package {norm_pkg_name} seems to already exists')
 
-    # Create a new anchor element for our new package
+    # Create new package card
     placeholder_card = BeautifulSoup(INDEX_CARD_HTML, 'html.parser')
-    placeholder_card = placeholder_card.find('a')
-    new_package = copy.copy(placeholder_card)
+    new_package = placeholder_card.find('a')
     new_package['href'] = f'packages/{norm_pkg_name}/index.html'
-    new_package.contents[0].replace_with(pkg_name)
-    spans = new_package.find_all('span')
-    spans[1].string = norm_version  # First span contain the version
-    spans[2].string = short_desc    # Second span contain the short description
+    
+    # Update package information
+    name_span = new_package.find('span', class_='package-name')
+    name_span.string = pkg_name
+    
+    version_span = new_package.find('span', class_='version')
+    version_span.string = norm_version
+    
+    desc_span = new_package.find('span', class_='description')
+    desc_span.string = short_desc
 
-    # Add it to our index and save it
-    soup.find('h6', class_='text-header').insert_after(new_package)
-    with open(INDEX_FILE, 'wb') as index:
-        index.write(soup.prettify('utf-8'))
+    # Add to card container
+    card_container = soup.find('div', class_='card-container')
+    if not card_container:
+        card_container = soup.find('h6', class_='text-header').parent
+    
+    card_container.append(new_package)
 
-    # Then get the template, replace the content and write to the right place
-    with open(TEMPLATE_FILE) as temp_file:
+    # Save updated index
+    with open(INDEX_FILE, 'w', encoding='utf-8') as index:
+        index.write(soup.prettify())
+
+    # Create package page from template
+    with open(TEMPLATE_FILE, encoding='utf-8') as temp_file:
         template = temp_file.read()
 
-    template = template.replace('_package_name', pkg_name)
-    template = template.replace('_norm_version', norm_version)
-    template = template.replace('_version', version)
-    template = template.replace('_link', f'{link}#egg={norm_pkg_name}-{norm_version}')
-    template = template.replace('_homepage', homepage)
-    template = template.replace('_author', author)
-    template = template.replace('_long_description', long_desc)
-    template = template.replace('_latest_main', version)
+    # Replace template placeholders
+    replacements = {
+        '_package_name': pkg_name,
+        '_norm_version': norm_version,
+        '_version': version,
+        '_link': f'{link}#egg={norm_pkg_name}-{norm_version}',
+        '_homepage': homepage,
+        '_author': author,
+        '_long_description': long_desc,
+        '_latest_main': version
+    }
+    
+    for key, value in replacements.items():
+        template = template.replace(key, value)
 
+    # Create package directory and save package page
     os.makedirs(f'packages/{norm_pkg_name}', exist_ok=True)
     package_index = f'packages/{norm_pkg_name}/index.html'
-    with open(package_index, 'w') as f:
+    with open(package_index, 'w', encoding='utf-8') as f:
         f.write(template)
 
-
-
 def delete(pkg_name):
-    # Read our index first
-    with open(INDEX_FILE) as html_file:
+    with open(INDEX_FILE, encoding='utf-8') as html_file:
         soup = BeautifulSoup(html_file, 'html.parser')
+    
     norm_pkg_name = normalize(pkg_name)
 
     if not package_exists(soup, norm_pkg_name):
-        raise ValueError(f'Package {norm_pkg_name} seems to not exists')
+        raise ValueError(f'Package {norm_pkg_name} does not exist')
 
-    # Remove the package directory
-    os.remove(f'packages/{norm_pkg_name}.html')
+    # Remove package directory and files
+    package_dir = f'packages/{norm_pkg_name}'
+    if os.path.exists(package_dir):
+        import shutil
+        shutil.rmtree(package_dir)
 
-    # Find and remove the anchor corresponding to our package
-    anchor = soup.find('a', attrs={'href': f'packages/{norm_pkg_name}/index.html'})
-    anchor.extract()
-    with open(INDEX_FILE, 'wb') as index:
-        index.write(soup.prettify('utf-8'))
-
+    # Remove package card from index
+    anchor = soup.find('a', class_='card', attrs={'href': f'packages/{norm_pkg_name}/index.html'})
+    if anchor:
+        anchor.extract()
+        
+    with open(INDEX_FILE, 'w', encoding='utf-8') as index:
+        index.write(soup.prettify())
 
 def main():
-    # Call the right method, with the right arguments
-    action = os.environ['PKG_ACTION']
+    action = os.environ.get('PKG_ACTION')
 
     if action == 'REGISTER':
         register(
@@ -192,10 +199,7 @@ def main():
             homepage=os.environ['PKG_HOMEPAGE'],
         )
     elif action == 'DELETE':
-        delete(
-            pkg_name=os.environ['PKG_NAME']
-        )
-
+        delete(pkg_name=os.environ['PKG_NAME'])
 
 if __name__ == '__main__':
     main()
