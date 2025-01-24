@@ -37,9 +37,9 @@ _While the PyPi index is public, private packages indexed here are kept private 
 ```sh
 alias python=python3 # on macOS/Linux
 
-python -m pip install sample-package --extra-index-url https://haim-shulner.github.io/PyIndexServer/packages/ # first insatllation
+python -m pip install sample-package --extra-index-url https://pypkghub.github.io/PyIndexServer/packages/ # first insatllation
 
-python -m pip install sample-package --upgrade --extra-index-url https://haim-shulner.github.io/PyIndexServer/packages/ # upgrade
+python -m pip install sample-package --upgrade --extra-index-url https://pypkghub.github.io/PyIndexServer/packages/ # upgrade
 ```
 
 _It will also install all depencies packages automatically !_
@@ -50,12 +50,12 @@ _It will also install all depencies packages automatically !_
 ```sh
 alias python=python3 # on macOS/Linux
 
-python -m pip install sample-package==0.1 --extra-index-url https://haim-shulner.github.io/PyIndexServer/packages/ # first insatllation
+python -m pip install sample-package==0.1 --extra-index-url https://pypkghub.github.io/PyIndexServer/packages/ # first insatllation
 ```
 
 ***Example of requirements.txt:***
 
---extra-index-url `https://haim-shulner.github.io/PyIndexServer/packages/`
+--extra-index-url `https://pypkghub.github.io/PyIndexServer/packages/`
 sample-package==0.1
 
 ---
