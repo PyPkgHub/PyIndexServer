@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  
+  <!-- Skeleton CSS -->
+  <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" rel="stylesheet" />
+  
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet" type="text/css" />
+  
+  <!-- JQuery -->
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+  
+  <!-- Marked parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+  <!-- Custom Styles -->
+  <link href="../static/package_styles.css" rel="stylesheet" />
+  
+  <!-- Custom JS -->
+  <script type="text/javascript" src="../static/pypi_checker.js"></script>
+  <script src="../static/package_page.js" defer></script>
+  
+  <title>Private PyPI - Python Package Index</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #f8f9fa, #ffffff);
+      font-family: 'Montserrat', sans-serif;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    .container {
+      margin: 40px auto;
+      padding: 0 20px;
+      max-width: 1200px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      background: white;
+      border-radius: 12px;
+    }
+
+    .header {
+      padding: 30px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .goback-button {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .goback-button:hover {
+      transform: scale(1.1);
+    }
+
+    .goback-button svg {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    h1 {
+      font-weight: 600;
+      color: #1a365d;
+      margin: 20px 0 10px;
+    }
+
+    pre {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      overflow-x: auto;
+    }
+
+    .version {
+      display: inline-block;
+      background: #e9ecef;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      color: #495057;
+      font-weight: 500;
+      margin: 10px 0;
+    }
+
+    .danger-button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      width: 100%;
+      transition: background-color 0.2s ease;
+    }
+
+    .row {
+      margin-top: 40px;
+    }
+
+    #repoHomepage {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      background: #1EAEDB;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+
+    #repoHomepage:hover {
+      background: #1a95bd;
+    }
+
+    .versions {
+      margin-top: 20px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .versions div {
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .versions div:last-child {
+      border-bottom: none;
+    }
+
+    .versions a {
+      display: block;
+      padding: 12px 16px;
+      color: #1EAEDB;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .versions a:hover {
+      background: #f8f9fa;
+    }
+
+    .versions .main a {
+      font-weight: 600;
+      color: #1a95bd;
+    }
+
+    .text-header {
+      color: #1a365d;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .readme-block {
+      font-size: 1.1em;
+      color: #2d3748;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid #e9ecef;
+      margin: 30px 0;
+    }
+
+    .elem {
+      margin: 15px 0;
+      line-height: 1.6;
+    }
+
+    .elem b {
+      color: #1a365d;
+    }
+
+    @media (max-width: 750px) {
+      .container {
+        margin: 20px;
+        padding: 15px;
+      }
+      
+      .header {
+        padding: 20px 0;
+      }
+      
+      .goback-button {
+        top: 10px;
+        left: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="header">
+      <div align="center">
+        <img src="./../../logo.webp" width="40%" />
+      </div>
+      <button onclick="goBack()" class="goback-button">
+        <svg width="50" height="50">
+          <circle cx="25" cy="25" r="20" fill="#1EAEDB" />
+          <path d="M15 25l10-10v5h10v10h-10v5z" fill="white" />
+        </svg>
+      </button>
+      <h1>testpkg</h1>
+    </section>
+    
+    <pre id="installdanger" hidden>
+      <button class="danger-button" disabled>
+        DANGER! A higher version of <i>testpkg</i> already exists on PyPI
+      </button>
+    </pre>
+
+    <span id="latest-version" class="version">1.1.5</span>
+    <span id="latest-main-version" hidden>1.1.5</span>
+    
+    <p>
+      <span style="color:gray;">
+        alias python=python3 # on macOS/Linux
+      </span>
+      <br/>
+      <span style="color:black;">
+        python -m pip install testpkg --extra-index-url https://pypkghub.github.io/PyIndexServer/packages/
+      </span>
+    </p>
+    <hr />
+    
+    <div class="row">
+      <div class="three columns">
+        <b>Project Links</b>
+        <button id="repoHomepage" onclick="openLinkInNewTab('https://github.com/PyPkgHub/testpkg')">Homepage</button>
+        <p class="elem"><b>Author:</b> PyPkgHub</p>
+        <section class="versions" id="versions">          
+          <!-- Links to the specific .whl files -->
+          <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp38-none-win_amd64.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp38-none-win32.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp39-cp39-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl">
+                0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp39-cp39-macosx_10_12_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp39-cp39-macosx_11_0_arm64.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp39-none-win_amd64.whl">
+                0.2.2</a>
+              <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp39-none-win32.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp310-cp310-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp310-cp310-macosx_10_12_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp310-cp310-macosx_11_0_arm64.whl">
+                0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp310-none-win_amd64.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp310-none-win32.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp311-cp311-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl">
+                0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp311-cp311-macosx_10_12_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp311-cp311-macosx_11_0_arm64.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp311-none-win_amd64.whl">
+                0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp311-none-win32.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp312-cp312-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp312-cp312-macosx_10_12_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp312-cp312-macosx_11_0_arm64.whl">
+                0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp312-none-win_amd64.whl">
+                0.2.2</a>
+                <div id="0.2.2" class="version-entry">
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-cp312-none-win32.whl">
+              0.2.2</a>
+            <a href="https://github.com/PyPkgHub/regorus-python-builder/releases/download/0.2.2/regorus-0.2.2-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl">
+                0.2.2</a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+      <div class="nine columns" id="description_pkg">
+        <h6 class="text-header">Description</h6>
+        <p id="markdown-container" class="readme-block"></p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Navigate back in history
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = "/"; // Fallback to homepage
+      }
+    }
+
+    // Load README or handle default version logic
+    $(document).ready(function () {
+      var thisVers = document.getElementById('latest-main-version').textContent.trim();
+      document.getElementById(thisVers).classList.add('main');
+      check_supply_chain_attack("testpkg", thisVers, warn_unsafe);
+    
+      if (window.location.hash !== "") {
+        let versionHash = window.location.hash.replace('#', '');
+        load_readme(versionHash, true);
+        return;
+      }
+      load_readme(thisVers);
+    });
+  </script>
+</body>
+</html>
